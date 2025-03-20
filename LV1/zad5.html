@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
+<body>
+<script>
+    const svgWidth = 400;
+    const svgHeight = 300;
+
+    const svg = d3.select("body").append("svg")
+        .attr("width", svgWidth)
+        .attr("height", svgHeight);
+
+    const colors = ["blue", "black", "red", "yellow", "green"];
+
+    const positions = [
+        {x: 80, y: 100},
+        {x: 180, y: 100},
+        {x: 280, y: 100},
+        {x: 130, y: 140},
+        {x: 230, y: 140}
+    ];
+
+    svg.selectAll("circle")
+        .data(colors)
+        .enter()
+        .append("circle")
+        .attr("cx", (d, i) => positions[i].x)
+        .attr("cy", (d, i) => positions[i].y)
+        .attr("r", 40)
+        .attr("fill", "none")
+        .attr("stroke", (d) => d)
+        .attr("stroke-width", 8);
+</script>
+</body>

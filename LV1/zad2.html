@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>VP-LV</title>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+  <script>
+    d3.select("body").insert("h1").html("Vizualizacija podataka")
+    d3.select("body").insert("div").attr("ID", "ID1")
+    d3.select("body div").append("h2").html("Podnaslov 1")
+    d3.select("body div").append("p").html("Tekst 1.")
+    d3.select("body").insert("div").attr("ID", "ID2")
+    d3.select("body div:nth-of-type(2)").append("h2").html("Podnaslov 2")
+    d3.select("body div:nth-of-type(2)").append("p").html("Tekst 2.")
+    d3.selectAll("p").html("Novi sadržaj")
+  </script>
+</body>
+</html>
