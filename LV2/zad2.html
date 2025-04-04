@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <style>
+        .bar:hover {
+            fill: red;
+        }
+
+        .axis-label {
+            font-size: 12px;
+        }
+
+        .y-axis text {
+            font-size: 12px;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            opacity: 0;
+        }
+    </style>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+
+    <h2>Stupčasti Graf - Broj osoba po nadbiskupijama</h2>
+    <svg width="1000" height="400"></svg>
+
+    <div id="tooltip" class="tooltip"></div>>
+
+    <script>
+        fetch('ocisceni_podaci.json')
+            .then(response => response.json())
+            .then(data => {
+                const filteredData = data.filter(item => item.BISKUPIJA_NADBISKUPIJA && item.BISKUPIJA_NADBISKUPIJA.trim() !== "");
+                const biskupijeCount = {};
+                filteredData.forEach(item => {
+                    const biskupija = item.BISKUPIJA_NADBISKUPIJA;
+                    if (biskupijeCount[biskupija]) {
+                        biskupijeCount[biskupija] += 1;
+                    } else {
+                        biskupijeCount[biskupija] = 1;
+                    }
+                });
+
+                const graphData = Object.keys(biskupijeCount).map(key => ({
+                    biskupija: key,
+                    count: biskupijeCount[key]
+                }));
+
+                graphData.sort((a, b) => b.count - a.count);
+
+                const margin = { top: 40, right: 40, bottom: 100, left: 60 };
+                const width = 900 - margin.left - margin.right;
+                const height = 400 - margin.top - margin.bottom;
+
+                const color = d3.scaleOrdinal(d3.schemeCategory10);
+                var myColor = d3.scaleOrdinal()
+  .range(["gold", "blue", "green", "yellow", "black", "grey", "darkgreen", "pink", "brown", "slateblue", "grey1", "orange"]);
+
+                const svg = d3.select("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+                const x = d3.scaleBand()
+                    .domain(graphData.map(d => d.biskupija))
+                    .range([0, width])
+                    .padding(0.1);
+
+                const y = d3.scaleLinear()
+                    .domain([0, d3.max(graphData, d => d.count)])
+                    .nice()
+                    .range([height, 0]);
+
+                svg.append("g")
+                    .call(d3.axisLeft(y))
+                    .attr("class", "y-axis");
+
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", -margin.left + 20)
+                    .attr("x", -(height / 2))
+                    .style("text-anchor", "middle")
+                    .text("Broj osoba");
+
+                svg.append("text")
+                    .attr("y", height + margin.top)
+                    .attr("x", (width / 2))
+                    .style("text-anchor", "middle")
+                    .text("Biskupije");
+
+                const bars = svg.selectAll(".bar")
+                    .data(graphData)
+                    .enter()
+                    .append("rect")
+                    .attr("class", "bar")
+                    .attr("x", d => x(d.biskupija))
+                    .attr("y", d => y(d.count))
+                    .attr("width", x.bandwidth())
+                    .attr("height", d => height - y(d.count))
+                    .attr("fill", d => myColor(d.biskupija));
+
+                const tooltip = d3.select("#tooltip");
+
+                bars.on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(d.biskupija)
+                        .style("left", (event.pageX + 5) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                })
+                .on("mouseout", function() {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                });
+
+            })
+            .catch(error => console.error('Error loading or parsing the data:', error));
+
+    </script>
+</body>
+</html>

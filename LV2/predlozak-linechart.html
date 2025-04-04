@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tri linijska grafa</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .line {
+            fill: none;
+            stroke-width: 2;
+        }
+        .legend {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <svg width="800" height="500"></svg>
+
+    <script>
+        const data1 = [
+            { year: 2010, value: 20 },
+            { year: 2011, value: 30 },
+            { year: 2012, value: 40 },
+            { year: 2013, value: 35 },
+            { year: 2014, value: 60 },
+            { year: 2015, value: 50 },
+            { year: 2016, value: 80 },
+            { year: 2017, value: 75 },
+            { year: 2018, value: 90 },
+            { year: 2019, value: 100 }
+        ];
+
+        const data2 = [
+            { year: 2010, value: 50 },
+            { year: 2011, value: 45 },
+            { year: 2012, value: 70 },
+            { year: 2013, value: 65 },
+            { year: 2014, value: 60 },
+            { year: 2015, value: 80 },
+            { year: 2016, value: 85 },
+            { year: 2017, value: 100 },
+            { year: 2018, value: 110 },
+            { year: 2019, value: 120 }
+        ];
+
+        const data3 = [
+            { year: 2010, value: 15 },
+            { year: 2011, value: 25 },
+            { year: 2012, value: 35 },
+            { year: 2013, value: 45 },
+            { year: 2014, value: 50 },
+            { year: 2015, value: 40 },
+            { year: 2016, value: 60 },
+            { year: 2017, value: 55 },
+            { year: 2018, value: 80 },
+            { year: 2019, value: 90 }
+        ];
+
+        const margin = { top: 40, right: 40, bottom: 80, left: 60 };
+        const width = 800 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        const svg = d3.select("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const x = d3.scaleBand().range([0, width]).padding(0.1)
+            .domain(data1.map(d => d.year));
+
+        const y = d3.scaleLinear().range([height, 0])
+            .domain([0, d3.max([d3.max(data1, d => d.value), d3.max(data2, d => d.value), d3.max(data3, d => d.value)])]);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+
+        const line = d3.line()
+            .x(d => x(d.year))
+            .y(d => y(d.value));
+
+        svg.append("path")
+            .data([data1])
+            .attr("class", "line")
+            .attr("d", line)
+            .style("stroke", "blue");
+
+        svg.append("path")
+            .data([data2])
+            .attr("class", "line")
+            .attr("d", line)
+            .style("stroke", "green");
+
+        svg.append("path")
+            .data([data3])
+            .attr("class", "line")
+            .attr("d", line)
+            .style("stroke", "red");
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linijski graf s vremenom na x-osi</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .line {
+            fill: none;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body>
+    <svg width="800" height="500"></svg>
+
+    <script>
+        const data = [
+            { date: '2020-01-01', value: 50 },
+            { date: '2020-02-01', value: 80 },
+            { date: '2020-03-01', value: 70 },
+            { date: '2020-04-01', value: 100 },
+            { date: '2020-05-01', value: 120 },
+            { date: '2020-06-01', value: 110 },
+            { date: '2020-07-01', value: 130 },
+            { date: '2020-08-01', value: 140 },
+            { date: '2020-09-01', value: 150 },
+            { date: '2020-10-01', value: 170 }
+        ];
+
+        const margin = { top: 40, right: 40, bottom: 80, left: 60 };
+        const width = 800 - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        const svg = d3.select("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const x = d3.scaleTime().range([0, width])
+            .domain(d3.extent(data, d => new Date(d.date)));
+
+        const y = d3.scaleLinear().range([height, 0])
+            .domain([0, d3.max(data, d => d.value)]);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).ticks(d3.timeMonth).tickFormat(d3.timeFormat("%b %Y")));
+
+        const line = d3.line()
+            .x(d => x(new Date(d.date)))
+            .y(d => y(d.value));
+
+        svg.append("path")
+            .data([data])
+            .attr("class", "line")
+            .attr("d", line)
+            .style("stroke", "blue");
+
+    </script>
+</body>
+</html>
