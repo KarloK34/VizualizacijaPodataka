@@ -1,0 +1,42 @@
+<!-- Napisati kod koji ´ce pomo´cu biblioteke D3 primjenom SVG transformacija
+translatirati umetnuti pravokutnik iz poloˇzaja (widthSVG – widthrect, heightSVG −
+heightrect) u poloˇzaj (0, 0), ali na naˇcin da se pravokutnik translatira prvo u smjeru
+x-osi, a potom u smjeru y-osi. Trajanje svake translacije treba biti 1 s. -->
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3 Translacija Pravokutnika</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <svg id="mySvg" width="400" height="300" style="border:1px solid #ccc;"></svg>
+
+  <script>
+    const svgWidth = 400;
+    const svgHeight = 300;
+    const rectWidth = 100;
+    const rectHeight = 50;
+
+    const startX = svgWidth - rectWidth;
+    const startY = svgHeight - rectHeight;
+
+    const svg = d3.select("#mySvg");
+
+    const rect = svg.append("rect")
+      .attr("width", rectWidth)
+      .attr("height", rectHeight)
+      .attr("fill", "orange")
+      .attr("transform", `translate(${startX}, ${startY})`);
+
+    rect.transition()
+      .duration(1000)
+      .attr("transform", `translate(0, ${startY})`)
+      .on("end", () => {
+        rect.transition()
+          .duration(1000)
+          .attr("transform", `translate(0, 0)`);
+      });
+  </script>
+</body>
+</html>

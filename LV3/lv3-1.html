@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+    <title>LV3</title>
+    <meta charset="utf-8" />
+
+    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+
+</head>
+<body>
+<script>
+var data = [{"x":100,"y":100,"width":100,"height":200},
+            {"x":400,"y":100,"width":100,"height":200}];
+var colors = d3.scale.category10();
+
+var width = 1024;
+var height = 768;
+
+var svg = d3.select("body")
+    .append("svg")
+    .attr("width",width)
+    .attr("height",height)
+    .style("background","black");
+
+var rects = svg.append("rect")
+    .attr("x", data[0].x)
+    .attr("y", data[0].y)
+    .attr("width", data[0].width)
+    .attr("height", data[0].height)
+    .style("fill", colors(2))
+    ;
+
+    d3.select("rect")
+    .transition()
+    .delay(250)
+    .duration(1000)
+    .ease("quad-in-out")
+.attr("transform", function(d){return "translate(" + data[1].x + "," + data[1].y + ")";});
+
+
+</script>
+</body>
+</html>

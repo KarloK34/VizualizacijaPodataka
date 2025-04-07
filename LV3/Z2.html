@@ -1,0 +1,74 @@
+<!-- . Izmijeniti kˆod prethodnog zadatka na naˇcin da se omogu´ci autonomno dodavanje
+10 kvadrata koji ´ce se ponaˇsati sliˇcno kao i u prethodnom zadatku, ali sa sluˇcajno
+odabranom vrijednoˇs´cu trajanja svake od tranzicija. Nakon isteka posljednje
+tranzicije postupak je potrebno ponoviti s novim vrijednostima vremena i
+poloˇzaja te poˇcetnim vrijednostima dužine stranice. -->
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3 Više Kvadrata</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <svg id="mySvg" width="600" height="600" style="border:1px solid #ccc;"></svg>
+
+  <script>
+    const svgWidth = 600;
+    const svgHeight = 600;
+    const numSquares = 10;
+    const maxSize = svgWidth / 2;
+
+    const svg = d3.select("#mySvg");
+
+    function createAndAnimateSquares() {
+      svg.selectAll("*").remove(); 
+
+      for (let i = 0; i < numSquares; i++) {
+        const startSize = Math.random() * 80;
+        const x = Math.random() * (svgWidth - startSize);
+        const y = Math.random() * (svgHeight - startSize);
+
+        const delay = Math.random() * 3000 + 1000; 
+        const fillDuration = Math.random() * 3000 + 4000; 
+        const expandDuration = Math.random() * 3000 + 4000; 
+
+        const square = svg.append("rect")
+          .attr("x", x)
+          .attr("y", y)
+          .attr("width", startSize)
+          .attr("height", startSize)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 2)
+          .attr("opacity", 1);
+
+        setTimeout(() => {
+          square
+          .attr("fill", "steelblue")
+          .attr("fill-opacity", 0)
+          .transition()
+            .duration(fillDuration)
+            .attr("fill-opacity", 1)
+            .on("end", () => {
+              square.transition()
+                .duration(expandDuration)
+                .attr("x", x - (maxSize - startSize) / 2)
+                .attr("y", y - (maxSize - startSize) / 2)
+                .attr("width", maxSize)
+                .attr("height", maxSize)
+                .attr("opacity", 0)
+                .on("end", () => {
+                  if (i === numSquares - 1) {
+                    setTimeout(createAndAnimateSquares, 1000); 
+                  }
+                });
+            });
+        }, delay);
+      }
+    }
+
+    createAndAnimateSquares();
+  </script>
+</body>
+</html>

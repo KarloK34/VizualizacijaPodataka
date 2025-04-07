@@ -1,0 +1,96 @@
+<!-- U SVG umetnuti tri kruˇznice koje će biti pri vrhu slike. Pri dnu, a ispod svake od
+kruˇznica, umetnuti tri pravokutnika koji ´c e predstavljati razliˇcite materijale i
+to redom krutu tvar, elastiˇcnu tvar i teku´ćinu Smulirati slobodan pad kugli i
+njihovu reakciju prilikom sudara s pravokutnicima. -->
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulacija pada kugli</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <svg id="mySvg" width="600" height="430" style="border:1px solid #ccc;"></svg>
+
+  <script>
+    const svgWidth = 600;
+    const svgHeight = 400;
+    const ballRadius = 20;
+    const materialHeight = 40;
+
+    const svg = d3.select("#mySvg");
+
+    const materials = [
+      { label: "Kruta tvar", behavior: "solid", color: "#888" },
+      { label: "Elastična tvar", behavior: "elastic", color: "#4CAF50" },
+      { label: "Tekućina", behavior: "liquid", color: "#2196F3" }
+    ];
+
+    const spacing = svgWidth / (materials.length + 1);
+    const groundY = svgHeight - materialHeight;
+
+    materials.forEach((m, i) => {
+      const x = spacing * (i + 1) - 30;
+
+      svg.append("rect")
+        .attr("x", x)
+        .attr("y", groundY)
+        .attr("width", 60)
+        .attr("height", materialHeight)
+        .attr("fill", m.color);
+
+      svg.append("text")
+        .attr("x", x + 30)
+        .attr("y", groundY + materialHeight + 15)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .text(m.label);
+
+      const circle = svg.append("circle")
+        .attr("cx", x + 30)
+        .attr("cy", 40)
+        .attr("r", ballRadius)
+        .attr("fill", "orange");
+
+      animateBall(circle, m.behavior, groundY - ballRadius);
+    });
+
+    function animateBall(circle, behavior, targetY) {
+      const durationFall = 1000;
+
+      circle.transition()
+        .duration(durationFall)
+        .ease(d3.easeQuadIn)
+        .attr("cy", targetY)
+        .on("end", () => {
+        if (behavior === "elastic") {
+            circle.transition()
+              .duration(400)
+              .ease(d3.easeLinear)
+              .attr("cy", targetY - 80)
+              .transition()
+              .duration(400)
+              .ease(d3.easeLinear)
+              .attr("cy", targetY)
+              .transition()
+              .duration(400)
+              .ease(d3.easeLinear)
+              .attr("cy", targetY - 40)
+              .transition()
+              .duration(400)
+              .ease(d3.easeLinear)
+              .attr("cy", targetY);
+          } else if (behavior === "liquid") {
+            circle
+            .attr("opacity", 1)
+            .transition()
+              .duration(2000)
+              .ease(d3.easeLinear)
+              .attr("cy", targetY + 25)
+              .attr("opacity", 0.6);
+          }
+        });
+    }
+  </script>
+</body>
+</html>

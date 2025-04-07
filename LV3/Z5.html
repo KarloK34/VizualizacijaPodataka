@@ -1,0 +1,70 @@
+<!-- Izraditi simulaciju sunˇcevog sustava s pripadaju´cim rotacijama planeta
+primjenom biblioteke D3. -->
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sunčev sustav – D3</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { background-color: #000; margin: 0; }
+    svg { display: block; margin: auto; }
+  </style>
+</head>
+<body>
+  <svg id="solarSystem" width="800" height="750"></svg>
+
+  <script>
+    const svg = d3.select("#solarSystem");
+    const width = svg.attr("width");
+    const height = svg.attr("height");
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    svg.append("circle")
+      .attr("cx", centerX)
+      .attr("cy", centerY)
+      .attr("r", 25)
+      .attr("fill", "yellow");
+
+      const planets = [
+  { name: "Merkur", radius: 60, size: 2.3, color: "#aaa", speed: 0.001 },
+  { name: "Venera", radius: 90, size: 5.7, color: "#c9a", speed: 0.00073 },
+  { name: "Zemlja", radius: 120, size: 6, color: "#4af", speed: 0.00062 },
+  { name: "Mars", radius: 150, size: 3.2, color: "#f44", speed: 0.00052 },
+  { name: "Jupiter", radius: 200, size: 20, color: "#ff0", speed: 0.00027 },
+  { name: "Saturn", radius: 250, size: 16, color: "#fc0", speed: 0.0002 },
+  { name: "Uran", radius: 300, size: 9, color: "#0cf", speed: 0.00014 },
+  { name: "Neptun", radius: 350, size: 8.7, color: "#00f", speed: 0.00011 }
+];
+
+    const orbits = svg.selectAll(".orbit")
+      .data(planets)
+      .enter()
+      .append("g")
+      .attr("class", "orbit");
+
+    orbits.append("circle")
+      .attr("cx", d => centerX)
+      .attr("cy", d => centerY)
+      .attr("r", d => d.radius)
+      .attr("fill", "none")
+      .attr("stroke", "#333")
+      .attr("stroke-width", 0.5);
+
+    const planetCircles = orbits.append("circle")
+      .attr("r", d => d.size)
+      .attr("fill", d => d.color);
+
+    d3.timer((elapsed) => {
+      planetCircles
+        .attr("cx", (d) => {
+          return centerX + d.radius * Math.cos(elapsed * d.speed);
+        })
+        .attr("cy", (d) => {
+          return centerY + d.radius * Math.sin(elapsed * d.speed);
+        });
+    });
+  </script>
+</body>
+</html>

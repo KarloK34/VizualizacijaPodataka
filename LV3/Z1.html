@@ -1,0 +1,53 @@
+<!-- Napisati kod koji će unutar SVG elementa umetnuti kvadrat. Kvadrat treba biti
+bez ispune (engl. fill ) s obrubom (engl. stroke) u boji. Nakon 3 s potrebno je
+pokrenuti tranziciju koja će dodati ispunu tijekom perioda od 5 s. Nakon
+zavrˇsetka ispunjavanja kvadrata potrebno je pokrenuti novu tranziciju koja će
+pove´cati dužinu stranice do vrijednosti widthSVG / 2, a pri tome istovremeno
+smanjivati parametar opacity do vrijednosti 0. -->
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3 Kvadrat</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <svg id="mySvg" width="400" height="400"></svg>
+
+  <script>
+    const svgWidth = 400;
+    const svgHeight = 400;
+    const squareSize = 100;
+
+    const svg = d3.select("#mySvg");
+
+    const square = svg.append("rect")
+      .attr("x", (svgWidth - squareSize) / 2)
+      .attr("y", (svgHeight - squareSize) / 2)
+      .attr("width", squareSize)
+      .attr("height", squareSize)
+      .attr("fill", "none")
+      .attr("stroke", "green")
+      .attr("stroke-width", 3)
+      .attr("opacity", 1);
+
+    setTimeout(() => {
+      square
+        .attr("fill", "green")
+        .attr("fill-opacity", 0)
+        .transition()
+          .duration(5000)
+          .attr("fill-opacity", 1)
+          .on("end", () => {
+            square.transition()
+              .duration(3000)
+              .attr("x", (svgWidth / 2) / 2)
+              .attr("y", (svgHeight - svgWidth / 2) / 2)
+              .attr("width", svgWidth / 2)
+              .attr("height", svgWidth / 2)
+              .attr("opacity", 0);
+          });
+    }, 3000);
+  </script>
+</body>
+</html>
