@@ -1,0 +1,56 @@
+<!-- Prvi primjer iz ovog predloˇska potrebno je modificirati kako bi se ispisalo i vrstu vo´ca zajedno
+s koliˇcinom.
+ -->
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3 Kvadrat</title>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+  <svg id="mySvg" width="500" height="500"></svg>
+
+  <script>
+    const width = 500;
+    const height = 500;
+    var outerRadius = 200;
+    var innerRadius = 0;
+    var color = d3.scale.category20();
+
+    var arc = d3.svg.arc()
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius);
+
+    const svg = d3.select("#mySvg");
+
+    var data = [{name: 'jabuka', value: 17}, {name: 'kruska', value: 4},
+    {name: 'banana', value: 83}, {name: 'jagoda', value: 47}, {name: 'ribizla', value: 1}];
+
+    var pie = d3.layout.pie().value(function(d) { return d.value; });
+
+    var pieArcs = svg.selectAll("g.pie")
+        .data(pie(data))
+        .enter()
+        .append("g")
+        .attr("class", "pie")
+        .attr("transform", "translate(" + (width / 2) + ", " + (height / 2) +")");
+
+    pieArcs.append("path")
+        .attr("fill", function(d, i) { return color(i); })
+        .attr("d", arc);
+
+    pieArcs.append("text")
+        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; }) 
+        .attr("text-anchor", "middle")
+        .text(function(d) { return d.value; });
+
+    pieArcs.append("text")
+        .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; }) 
+        .attr("text-anchor", "middle")
+        .attr("dy", "1.2em")
+        .text(function(d) { return d.data.name; });
+
+  </script>
+</body>
+</html>

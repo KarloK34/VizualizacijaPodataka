@@ -1,0 +1,69 @@
+<!-- Registrirati odgovaraju´ce dogadaje (engl. event) za pojedine segmente kruˇznog prikaza koji
+´ce ispisati u konzolnom prozoru naziv i koliˇcinu. -->
+<!DOCTYPE html>
+ <html lang="hr">
+ <head>
+   <meta charset="UTF-8" />
+   <title>D3 Kvadrat</title>
+   <script src="https://d3js.org/d3.v3.min.js"></script>
+ </head>
+ <body>
+   <svg id="mySvg" width="500" height="500"></svg>
+ 
+   <script>
+    const width = 500;
+    const height = 500;
+    var outerRadius = 200;
+    var innerRadius = 0;
+    var color = d3.scale.category20();
+
+    var arc = d3.svg.arc()
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius);
+
+    const svg = d3.select("#mySvg");
+
+    var data = [{name: 'jabuka', value: 9}, {name: 'kruska', value: 12},
+    {name: 'banana', value: 13}, {name: 'jagoda', value: 47}, {name: 'ribizla', value: 122}];
+
+    var pie = d3.layout.pie().value(function(d) { return d.value; });
+
+    var pieArcs = svg.selectAll("g.pie")
+    .data(pie(data))
+    .enter()
+    .append("g")
+    .attr("class", "pie")
+    .attr("transform", "translate(" + (width / 2) + ", " + (height / 2) +")")
+    .on("mouseover", function(d) {
+    console.log("Naziv:", d.data.name, "Količina:", d.value);
+})
+    .on("click", function(d) {
+    console.log("Kliknuto:", d.data.name, "Količina:", d.value);
+});
+
+    pieArcs.append("path")
+        .attr("fill", function(d, i) { return color(i); })
+        .attr("d", arc);
+ 
+    function midAngle(d) {
+        return d.startAngle + (d.endAngle - d.startAngle) / 2;
+    }
+
+pieArcs.append("text")
+.attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; }) 
+.attr("text-anchor", "middle")
+.text(function(d) { return d.value; });
+
+
+pieArcs.append("text")
+    .attr("transform", function(d) {
+        var pos = arc.centroid(d);
+        var angle = midAngle(d) * 180 / Math.PI + 90;
+        return "translate(" + pos + ") rotate(" + angle + ")";
+    })
+    .attr("dx", "-5em")
+    .text(function(d) { return d.data.name; });
+
+   </script>
+ </body>
+ </html>
