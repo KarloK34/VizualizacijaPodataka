@@ -23,8 +23,8 @@
 
     const svg = d3.select("#mySvg");
 
-    var data = [{name: 'jabuka', value: 9}, {name: 'kruska', value: 12},
-    {name: 'banana', value: 13}, {name: 'jagoda', value: 47}, {name: 'ribizla', value: 122}];
+    var data = [{name: 'jabuka', value: 10}, {name: 'kruska', value: 52},
+    {name: 'banana', value: 23}, {name: 'jagoda', value: 7}, {name: 'ribizla', value: 30}];
 
     var pie = d3.layout.pie().value(function(d) { return d.value; });
 
@@ -58,10 +58,15 @@ pieArcs.append("text")
 pieArcs.append("text")
     .attr("transform", function(d) {
         var pos = arc.centroid(d);
-        var angle = midAngle(d) * 180 / Math.PI + 90;
+        var angle = midAngle(d) * 57.3 + 90;
+        console.log(d.data.name);
+        console.log( angle);
+        if ((angle) < 270) {
+             angle -= 180; 
+        }
         return "translate(" + pos + ") rotate(" + angle + ")";
     })
-    .attr("dx", "-5em")
+    .attr("dx", "-4em")
     .text(function(d) { return d.data.name; });
 
    </script>
