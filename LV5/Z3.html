@@ -1,0 +1,183 @@
+<!-- Prona ́ci podatke za RH koji su grupirani po ˇzupanijama. Podatke povezati s kartom te
+omogu ́citi prikaz tih podataka prilikom odabira odgovaraju ́ce ˇzupanije na karti. Potrebno
+je i izraditi skalu koju  ́ce se koristiti kod odabira boje svake od ˇzupanija. -->
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>D3 Karta RH - Boje po Populaciji</title>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <style>
+        .county {
+            stroke: #666;
+            stroke-width: 0.5px;
+            cursor: pointer;
+        }
+
+        .county:hover {
+            fill: yellow !important;
+            stroke: black;
+            stroke-width: 1px;
+        }
+
+        svg {
+            background-color: #f0f0f0;
+        }
+
+        #info {
+            fill: black;
+            font-size: 14px;
+            font-family: sans-serif;
+        }
+
+        .legend-rect {
+            stroke: #666;
+            stroke-width: 0.5px;
+        }
+
+        .legend-text {
+            font-size: 10px;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var width = 960;
+        var height = 700;
+
+        var colorScale = d3.scale.quantize()
+            .range(["#edf8e9", "#c7e9c0", "#a1d99b", "#74c476", "#41ab5d", "#238b45", "#005a32"]);
+
+
+        var projection = d3.geo.mercator()
+            .center([0, 10])
+            .scale(6000)
+            .translate([17600, 4500])
+            .rotate([-180, 0]);
+
+        var path = d3.geo.path()
+            .projection(projection);
+
+        var zoom = d3.behavior.zoom()
+            .scaleExtent([1, 15])
+            .on("zoom", zoomed);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .call(zoom);
+
+        var mapGroup = svg.append("g");
+
+        var infoText = svg.append("text")
+            .attr("id", "info")
+            .attr("x", 10)
+            .attr("y", 25);
+
+        var legendGroup = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", "translate(20, " + (height - 180) + ")");
+
+
+        d3.json("cro.json", function (error, cro) {
+            if (error) return console.error(error);
+
+            var data = topojson.feature(cro, cro.objects.layer1);
+
+            var populationExtent = d3.extent(data.features, function (d) {
+                var pop = d.properties && d.properties.population ? +d.properties.population : undefined;
+                return pop;
+            });
+
+            if (populationExtent[0] !== undefined && populationExtent[1] !== undefined) {
+                colorScale.domain(populationExtent);
+            } else {
+                console.warn("Could not determine population extent for color scale.");
+                colorScale.domain([0, 1]);
+            }
+
+
+            mapGroup.selectAll("path.county")
+                .data(data.features)
+                .enter()
+                .append("path")
+                .attr("class", "county")
+                .attr("id", function (d) { return d.id; })
+                .attr("d", path)
+                .style("fill", function (d) {
+                    var pop = d.properties && d.properties.population ? +d.properties.population : undefined;
+                    return (pop !== undefined) ? colorScale(pop) : "#ccc";
+                })
+                .on("mouseover", function (d) {
+                    infoText.text("");
+
+                    var countyName = d.properties && d.properties.name ? d.properties.name : "N/A";
+                    var population = d.properties && d.properties.population ? d3.format(",")(d.properties.population) : "N/A";
+                    var area = d.properties && d.properties.area ? d3.format(",.1f")(d.properties.area) + " km²" : "N/A";
+                    var mayor = d.properties && d.properties.mayor ? d.properties.mayor : "N/A";
+
+                    infoText.append("tspan")
+                        .attr("x", 10).attr("dy", 0).style("font-weight", "bold").text(countyName);
+                    infoText.append("tspan")
+                        .attr("x", 10).attr("dy", "1.2em").text("Stanovništvo: " + population);
+                    infoText.append("tspan")
+                        .attr("x", 10).attr("dy", "1.2em").text("Površina: " + area);
+                    infoText.append("tspan")
+                        .attr("x", 10).attr("dy", "1.2em").text("Župan: " + mayor);
+                })
+                .on("mouseout", function (d) {
+                    infoText.text("");
+                });
+
+            var legendRectSize = 18;
+            var legendSpacing = 4;
+            var legendTitleOffset = 10;
+
+            legendGroup.append("text")
+                .attr("class", "legend-title")
+                .attr("x", 0)
+                .attr("y", -legendSpacing)
+                .text("Stanovništvo");
+
+            var legendItems = legendGroup.selectAll(".legend-item")
+                .data(colorScale.range())
+                .enter()
+                .append("g")
+                .attr("class", "legend-item")
+                .attr("transform", function (d, i) {
+                    return "translate(0," + (i * (legendRectSize + legendSpacing) + legendTitleOffset) + ")";
+                });
+
+            legendItems.append("rect")
+                .attr("class", "legend-rect")
+                .attr("width", legendRectSize)
+                .attr("height", legendRectSize)
+                .style("fill", function (d) { return d; });
+
+            legendItems.append("text")
+                .attr("class", "legend-text")
+                .attr("x", legendRectSize + legendSpacing * 2)
+                .attr("y", legendRectSize / 2)
+                .attr("dy", "0.35em")
+                .text(function (d) {
+                    var extent = colorScale.invertExtent(d);
+                    return d3.format(",.0f")(extent[0]) + " - " + d3.format(",.0f")(extent[1]);
+                });
+
+        });
+
+        function zoomed() {
+            mapGroup.attr("transform",
+                "translate(" + d3.event.translate + ") " +
+                "scale(" + d3.event.scale + ")"
+            );
+        }
+
+    </script>
+</body>
+
+</html>

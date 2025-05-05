@@ -1,0 +1,66 @@
+<!-- Izraditi kartu RH te dodati <div> element unutar kojega  ́ce se ispisati naziv ˇzupanije prilikom
+    prelaska miˇsa iznad karte. -->
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>D3 Kvadrat</title>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+</head>
+
+<body>
+    <script>
+
+        var width = 960;
+        var height = 700;
+
+        var projection = d3.geo.mercator()
+            .center([0, 10])
+            .scale(6000)
+            .translate([17600, 4500])
+            .rotate([-180, 0]);
+
+        var path = d3.geo.path()
+            .projection(projection);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("background", "black");
+
+        svg.append("text")
+            .attr("id", "info")
+            .attr("x", 10)
+            .attr("y", 20)
+            .style("fill", "white")
+            .style("font-size", "16px");
+
+        d3.json("cro_regv3.json", function (error, cro) {
+            if (error) return console.error(error); 
+            var data = topojson.feature(cro, cro.objects.layer1);
+            var states = svg.selectAll("path.county")
+            .data(data.features)
+            .enter()
+            .append("path")
+            .attr("class", "county")
+            .attr("id", function (d) { return d.id; })
+            .attr("d", path).style("fill", "red")
+            .style("stroke", "gray")
+            .style("stroke-width", 1)
+            .style("stroke-opacity", 1)
+            .on("mouseover", function (d) {
+                d3.select(this).style("fill", "blue");
+                var countyName = d.properties && d.properties.name ? d.properties.name : "N/A";
+                d3.select("#info").text(countyName);
+            })
+            .on("mouseout", function (d) {
+                d3.select(this).style("fill", "red");
+                d3.select("#info").text("");
+            });
+        });
+    </script>
+</body>
+
+</html>
